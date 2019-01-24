@@ -26,7 +26,7 @@
                 margin-bottom: 40px;
             }
             td, th {
-                padding: 40px;
+                padding: 10px;
             }
             .card {
                 padding-top: 100px;
@@ -38,6 +38,15 @@
                 margin-bottom: 30px;
                 font-size: 30px;
                 background-color: #E7E7E7;
+            }
+            .circle {
+                fill: white;
+            }
+            .red {
+                fill: red;
+            }
+            .black {
+                fill: black;
             }
         </style>
     </head>
@@ -64,7 +73,14 @@
                         return (
                             <tr key={r}>
                                 {row.map((col, c) => {
-                                    return (<td key={c} onClick={() => this.makeMove(c)}><a>{col}</a></td>);
+                                    return (<td key={c} onClick={() => this.makeMove(c)}>
+                                        <a>
+                                            {col}
+                                            <svg width="60" height="60">
+                                                <circle className={col ? "red" : "black"} cx="30" cy="30" r="30" />
+                                            </svg>
+                                        </a>
+                                    </td>);
                                 })}
                             </tr>
                         );
@@ -102,8 +118,8 @@
                     let newBoard = [...this.state.board]
                     while (r < newBoard.length && ! newBoard[r][c]) {
                         if (r === newBoard.length - 1 || newBoard[r+1][c] !== null) {
-                            newBoard[r][c] = (this.state.redTurn ? "red" : "black");
-                            console.log(newBoard);
+                            // newBoard[r][c] = (this.state.redTurn ? "red" : "black");
+                            newBoard[r][c] = this.state.redTurn;
                             break;
                         }
                         r++;
