@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+        <title>Connect Four</title>
+        <style>
+            h1 {
+                margin: auto;
+                margin-top: 15px;
+                margin-bottom: 15px;
+            }
+            body {
+                text-align: center;
+            }
+            .row {
+                margin: 0px;
+                padding: 0px;
+            }
+            table, td, th {
+                margin: auto;
+                border: 1px solid black;
+                border-collapse: collapse;
+                margin-bottom: 40px;
+            }
+            td, th {
+                padding: 40px;
+            }
+            .card {
+                padding-top: 100px;
+                padding-bottom: 100px;
+                padding-right: 150px;
+                padding-left: 150px;
+                text-align: center;
+                margin: auto;
+                margin-bottom: 30px;
+                font-size: 30px;
+                background-color: #E7E7E7;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script type="text/babel">
+
+            class App extends React.Component {
+                constructor(props) {
+                    super(props);
+                    this.state = {
+                        board: [],
+                        redTurn: true
+                    }
+                }
+
+                componentDidMount() {
+                    this.reset(6,7);
+                }
+
+                render() {
+                    // Builds the table
+                    const rows = this.state.board.map((row,r) => {
+                        return (
+                            <tr key={r}>
+                                {row.map((col, c) => {
+                                    return (<td key={c} onClick={() => this.makeMove(c)}><a>{col}</a></td>);
+                                })}
+                            </tr>
+                        );
+                    })
+                    return (
+                        <div>
+                            <h1>Connect Four!</h1>
+                            <table>
+                                <tbody>
+                                    {rows}
+                                </tbody>
+                            </table>
+                            <button>Shuffle</button>
+                            <hr/>
+                            <button>Go to Viewer</button>
+                        </div>
+                    )
+                }
+
+                reset(numRows, numCols) {
+                    let empty_board = [];
+                    for (let r = 0; r < numRows; r++) {
+                        empty_board = [...empty_board, []];
+                        for (let c = 0; c < numCols; c++) {
+                            empty_board[r] = [...empty_board[r], null]
+                        }
+                    }
+                    this.setState({
+                        board: [...empty_board]
+                    });
+                }
+
+                makeMove(c) {
+                    console.log(c);
+                }
+            }
+
+            ReactDOM.render(<App />, document.querySelector("#app"));
+
+        </script>
+    </body>
+</html>
