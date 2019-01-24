@@ -63,8 +63,7 @@
                     this.state = {
                         board: [],
                         redTurn: true,
-                        winner: null,
-                        filledSquares: 0
+                        winner: null
                     }
                 }
 
@@ -93,7 +92,13 @@
                     return (
                         <div>
                             <h1>Connect Four!</h1>
-                            <p className={this.state.redTurn ? "red" : "black"} >{this.state.redTurn ? "Red's turn" : "Black's turn"}</p>
+                            <p className={this.state.redTurn ? "red" : "black"} >
+                                {
+                                    this.state.winner === null ? 
+                                    this.state.redTurn ? "Red's turn" : "Black's turn" : 
+                                    this.state.winner ? "Red won!" : "Black won!"
+                                }
+                            </p>
                             <table>
                                 <tbody>
                                     {rows}
@@ -114,15 +119,16 @@
                         }
                     }
                     this.setState({
-                        board: [...empty_board]
+                        board: [...empty_board],
+                        winner: null
                     });
                 }
 
                 makeMove(c) {
                     let r = 0;
                     let newBoard = [...this.state.board]
-                    // Checks if reached the top
-                    if (newBoard[0][c] !== null) {
+                    // Checks if reached the top or if there's already a winner
+                    if (newBoard[0][c] !== null || this.state.winner !== null) {
                         return;
                     }
                     // Moves downward down the rows to place the circle (reaches a max of newBoard.length - 1)
@@ -131,7 +137,11 @@
                     }
                     newBoard[r][c] = this.state.redTurn;
                     if (this.isWinner(r,c,this.state.redTurn)) {
-                        console.log(this.state.redTurn);
+                        this.setState(state => ({
+                            board: newBoard,
+                            winner: state.redTurn,
+                            redTurn: !state.redTurn
+                        }));
                     }
                     this.setState(state => ({
                         board: newBoard,
@@ -143,15 +153,12 @@
                 isWinner(r, c, color) {
                     let vecs = [[1,0], [0, 1], [1, 1], [-1, 1]];
                     let consecutive = 0;
-                    console.log(`${color ? "RED" : "BLACK"}`)
                     for (let v = 0; v < 4; v++) {
                         // Checks along one direction of the vector from [-3, 3]
                         for (let i = -3; i < 4; i++) {
                             if (this.matches(r + i*vecs[v][0], c + i*vecs[v][1], color)) {
                                 consecutive++;
-                                // console.log(`[${vecs[v][0]*i}, ${vecs[v][1]*i}] consecutive = ${consecutive}`);
                                 if (consecutive === 4) {
-                                    console.log(`${color ? "RED" : "BLACK"} IS A WINNER`);
                                     return true;
                                 }
                             }
