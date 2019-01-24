@@ -98,7 +98,20 @@
                 }
 
                 makeMove(c) {
-                    console.log(c);
+                    let r = 0;
+                    let newBoard = [...this.state.board]
+                    while (r < newBoard.length && ! newBoard[r][c]) {
+                        if (r === newBoard.length - 1 || newBoard[r+1][c] !== null) {
+                            newBoard[r][c] = (this.state.redTurn ? "red" : "black");
+                            console.log(newBoard);
+                            break;
+                        }
+                        r++;
+                    }
+                    this.setState(state => ({
+                        board: newBoard,
+                        redTurn: !state.redTurn
+                    }));
                 }
             }
 
