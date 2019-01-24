@@ -41,12 +41,15 @@
             }
             .white {
                 fill: white;
+                color: white;
             }
             .red {
                 fill: red;
+                color: red;
             }
             .black {
                 fill: black;
+                color: black;
             }
         </style>
     </head>
@@ -59,7 +62,9 @@
                     super(props);
                     this.state = {
                         board: [],
-                        redTurn: true
+                        redTurn: true,
+                        winner: null,
+                        filledSquares: 0
                     }
                 }
 
@@ -88,14 +93,14 @@
                     return (
                         <div>
                             <h1>Connect Four!</h1>
+                            <p className={this.state.redTurn ? "red" : "black"} >{this.state.redTurn ? "Red's turn" : "Black's turn"}</p>
                             <table>
                                 <tbody>
                                     {rows}
                                 </tbody>
                             </table>
-                            <button>Shuffle</button>
+                            <button onClick={() => this.reset(6,7)}>Reset the Game</button>
                             <hr/>
-                            <button>Go to Viewer</button>
                         </div>
                     )
                 }
@@ -116,18 +121,57 @@
                 makeMove(c) {
                     let r = 0;
                     let newBoard = [...this.state.board]
-                    while (r < newBoard.length && ! newBoard[r][c]) {
-                        if (r === newBoard.length - 1 || newBoard[r+1][c] !== null) {
-                            // newBoard[r][c] = (this.state.redTurn ? "red" : "black");
-                            newBoard[r][c] = this.state.redTurn;
-                            break;
-                        }
+                    // Checks if reached the top
+                    if (newBoard[0][c] !== null) {
+                        return;
+                    }
+                    // Moves downward down the rows to place the circle (reaches a max of newBoard.length - 1)
+                    while (r < newBoard.length - 1 && newBoard[r+1][c] === null) {
                         r++;
+                    }
+                    newBoard[r][c] = this.state.redTurn;
+                    if (this.isWinner(r,c,this.state.redTurn)) {
+                        console.log(this.state.redTurn);
                     }
                     this.setState(state => ({
                         board: newBoard,
                         redTurn: !state.redTurn
                     }));
+                }
+
+                // Checks the given position to see if it can find four in a row
+                isWinner(r, c, color) {
+                    let vecs = [[1,0], [0, 1], [1, 1], [-1, 1]];
+                    let consecutive = 0;
+                    console.log(`${color ? "RED" : "BLACK"}`)
+                    for (let v = 0; v < 4; v++) {
+                        // Checks along one direction of the vector from [-3, 3]
+                        for (let i = -3; i < 4; i++) {
+                            if (this.matches(r + i*vecs[v][0], c + i*vecs[v][1], color)) {
+                                consecutive++;
+                                // console.log(`[${vecs[v][0]*i}, ${vecs[v][1]*i}] consecutive = ${consecutive}`);
+                                if (consecutive === 4) {
+                                    console.log(`${color ? "RED" : "BLACK"} IS A WINNER`);
+                                    return true;
+                                }
+                            }
+                            else {
+                                consecutive = 0;
+                            }
+                        }
+                        consecutive = 0;
+                    }
+                    return false;
+                }
+
+                // Checks whether the given position is on the grid and is a certain color
+                // r, c represents the position
+                // color is a boolean (true for red, false for black)
+                matches(r, c, color) {
+                    if (r < 0 || r >= this.state.board.length || c < 0 || c >= this.state.board[0].length) {
+                        return false;
+                    }
+                    return this.state.board[r][c] === color;
                 }
             }
 
