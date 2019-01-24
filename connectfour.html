@@ -39,7 +39,7 @@
                 font-size: 30px;
                 background-color: #E7E7E7;
             }
-            .circle {
+            .white {
                 fill: white;
             }
             .red {
@@ -77,7 +77,7 @@
                                         <a>
                                             {col}
                                             <svg width="60" height="60">
-                                                <circle className={col ? "red" : "black"} cx="30" cy="30" r="30" />
+                                                <circle className={col ? "red" : col === false ? "black" : "white"} cx="30" cy="30" r="30" />
                                             </svg>
                                         </a>
                                     </td>);
