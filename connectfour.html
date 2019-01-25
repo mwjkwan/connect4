@@ -21,23 +21,13 @@
             }
             table, td, th {
                 margin: auto;
-                border: 1px solid black;
+                border: 2px solid #b7b7b7;
                 border-collapse: collapse;
                 margin-bottom: 40px;
+                background-color: #e7e7e7;
             }
             td, th {
                 padding: 10px;
-            }
-            .card {
-                padding-top: 100px;
-                padding-bottom: 100px;
-                padding-right: 150px;
-                padding-left: 150px;
-                text-align: center;
-                margin: auto;
-                margin-bottom: 30px;
-                font-size: 30px;
-                background-color: #E7E7E7;
             }
             .white {
                 fill: white;
@@ -51,6 +41,17 @@
                 fill: black;
                 color: black;
             }
+            .highlight {
+                background-color: #979797;
+            }
+            .redPreview {
+                fill: rgb(255, 173, 173);
+                fill-opacity: 0.8;
+            }
+            .blackPreview {
+                fill: rgb(100, 100, 100);
+                fill-opacity: 0.8;
+            }
         </style>
     </head>
     <body>
@@ -63,7 +64,8 @@
                     this.state = {
                         board: [],
                         redTurn: true,
-                        winner: null
+                        winner: null,
+                        highlight: [-1, -1]
                     }
                 }
 
@@ -77,11 +79,15 @@
                         return (
                             <tr key={r}>
                                 {row.map((col, c) => {
-                                    return (<td key={c} onClick={() => this.makeMove(c)}>
+                                    return (<td key={c} className={c === this.state.highlight[1] ? "highlight" : "normal"} onMouseEnter={() => this.highlightColumn(c)} onClick={() => this.makeMove(c)}>
                                         <a>
-                                            {col}
                                             <svg width="60" height="60">
-                                                <circle className={col ? "red" : col === false ? "black" : "white"} cx="30" cy="30" r="30" />
+                                                <circle className={
+                                                    col ? "red" : col === false ? "black" : 
+                                                    r !== this.state.highlight[0] || c !== this.state.highlight[1] ? "white" :
+                                                    this.state.redTurn === true ? "redPreview" : "blackPreview"}
+                                                    cx="30" cy="30" r="30"
+                                                />
                                             </svg>
                                         </a>
                                     </td>);
@@ -96,7 +102,7 @@
                                 {
                                     this.state.winner === null ? 
                                     this.state.redTurn ? "Red's turn" : "Black's turn" : 
-                                    this.state.winner ? "Red won!" : "Black won!"
+                                    this.state.winner ? <b>Red won!</b> : <b>Black won!</b>
                                 }
                             </p>
                             <table>
@@ -120,21 +126,35 @@
                     }
                     this.setState({
                         board: [...empty_board],
-                        winner: null
+                        red_turn: true,
+                        winner: null,
+                        highlight: [-1,-1]
                     });
                 }
-
-                makeMove(c) {
-                    let r = 0;
-                    let newBoard = [...this.state.board]
+                
+                // Returns null if no move in the column is available
+                // Otherwise returns the appropriate row for a move in that column
+                getMoveRow(c) {
+                    let r  = 0;
                     // Checks if reached the top or if there's already a winner
-                    if (newBoard[0][c] !== null || this.state.winner !== null) {
-                        return;
+                    if (this.state.board[0][c] !== null || this.state.winner !== null) {
+                        return null;
                     }
                     // Moves downward down the rows to place the circle (reaches a max of newBoard.length - 1)
-                    while (r < newBoard.length - 1 && newBoard[r+1][c] === null) {
+                    while (r < this.state.board.length - 1 && this.state.board[r+1][c] === null) {
                         r++;
                     }
+                    return r;
+                }
+                
+                // Implements the move by changing the state
+                makeMove(c) {
+                    let r = this.getMoveRow(c);
+                    if (r === null) {
+                        return;
+                    }
+
+                    let newBoard = [...this.state.board];
                     newBoard[r][c] = this.state.redTurn;
                     if (this.isWinner(r,c,this.state.redTurn)) {
                         this.setState(state => ({
@@ -149,7 +169,19 @@
                     }));
                 }
 
+                // Shows the preview
+                highlightColumn(c) {
+                    let r = this.getMoveRow(c);
+                    this.setState({
+                        highlight: [r, c]
+                    })
+                }
+
                 // Checks the given position to see if it can find four in a row
+                // Algorithm: Loops through 4 possible direction vectors, starting three units away in one direction and going
+                // up to 3 units away in the other direction. Keeps track of a "consecutive" variable to see how many are
+                // in a row in one direction. If that sequence is ever broken, consecutive goes back to zero. If the
+                // variable ever hits 4, it returns true: a winner has been found.
                 isWinner(r, c, color) {
                     let vecs = [[1,0], [0, 1], [1, 1], [-1, 1]];
                     let consecutive = 0;
